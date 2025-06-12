@@ -6,7 +6,6 @@ import {
   StyleSheet,
   ScrollView,
   FlatList,
-  TouchableOpacity,
 } from 'react-native';
 import {useTableStore, Row} from '../store/useTableStore';
 
@@ -50,17 +49,12 @@ export default function TableView() {
     updateCell,
     visibleCount,
     visibleStartIndex,
-    showMore,
+    startYearMonth,
   } = useTableStore();
-  // さらに表示ボタンを表示する条件
-  const isShowShowMore = visibleStartIndex > 0;
-  // FlatList用データ: さらに表示ボタン用のダミー行を先頭に追加
-  const flatListData = isShowShowMore
-    ? [
-        {id: '__show_more__'},
-        ...data.slice(visibleStartIndex, visibleStartIndex + visibleCount),
-      ]
-    : data.slice(visibleStartIndex, visibleStartIndex + visibleCount);
+  const flatListData = data.slice(
+    visibleStartIndex,
+    visibleStartIndex + visibleCount,
+  );
 
   return (
     <ScrollView horizontal>
@@ -83,26 +77,14 @@ export default function TableView() {
         <FlatList
           data={flatListData}
           keyExtractor={item => item.id}
-          renderItem={({item}) =>
-            // 「さらに表示」ボタンの行
-            item.id === '__show_more__' ? (
-              <View style={styles.row}>
-                <TouchableOpacity
-                  style={[
-                    styles.showMoreRow,
-                    {width: 90 * visibleColumns.length},
-                  ]}
-                  onPress={showMore}
-                  activeOpacity={0.7}>
-                  <Text style={styles.showMoreText}>さらに表示</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
+          renderItem={({item, index}) => {
+            const prevItem = index > 0 ? flatListData[index - 1] : undefined;
+            return (
               // データ行
               <View key={item.id} style={styles.row}>
                 {visibleColumns.map((key, colIdx) =>
-                  // 年月列
                   key === 'yearMonth' ? (
+                    // 年月列
                     <Text
                       key={key}
                       style={[
@@ -118,8 +100,74 @@ export default function TableView() {
                         return `${year}年${month}月`;
                       })()}
                     </Text>
-                  ) : key === 'openingNetAssets' ? (
-                    // 純資産(月初)の列
+                  ) : key === 'openingAssets' ? (
+                    // 資産(月初)列
+                    item.yearMonth === startYearMonth ? (
+                      // 1行目は入力可能
+                      <TextInput
+                        key={key}
+                        value={String((item as Row)[key] ?? '')}
+                        onChangeText={text =>
+                          updateCell(item.id, key, Number(text))
+                        }
+                        style={[
+                          styles.cell,
+                          colIdx === visibleColumns.length - 1 &&
+                            styles.rightmostCell,
+                        ]}
+                      />
+                    ) : (
+                      // 2行目以降は前行の資産(月末)を表示
+                      <Text
+                        key={key}
+                        style={[
+                          styles.cell,
+                          styles.labelCell,
+                          colIdx === visibleColumns.length - 1 &&
+                            styles.rightmostCell,
+                        ]}>
+                        {prevItem
+                          ? String((prevItem as Row).closingAssets ?? '')
+                          : ''}
+                      </Text>
+                    )
+                  ) : key === 'openingLiabilities' ? (
+                    // 負債(月初)列
+                    item.yearMonth === startYearMonth ? (
+                      // 1行目は入力可能
+                      <TextInput
+                        key={key}
+                        value={String((item as Row)[key] ?? '')}
+                        onChangeText={text =>
+                          updateCell(item.id, key, Number(text))
+                        }
+                        style={[
+                          styles.cell,
+                          colIdx === visibleColumns.length - 1 &&
+                            styles.rightmostCell,
+                        ]}
+                      />
+                    ) : (
+                      // 2行目以降は前行の負債(月末)を表示
+                      <Text
+                        key={key}
+                        style={[
+                          styles.cell,
+                          styles.labelCell,
+                          colIdx === visibleColumns.length - 1 &&
+                            styles.rightmostCell,
+                        ]}>
+                        {prevItem
+                          ? String((prevItem as Row).closingLiabilities ?? '')
+                          : ''}
+                      </Text>
+                    )
+                  ) : // その他の自動計算列
+                  key === 'openingNetAssets' ||
+                    key === 'closingAssets' ||
+                    key === 'closingLiabilities' ||
+                    key === 'closingNetAssets' ? (
+                    // 自動計算の列（ラベル表示）
                     <Text
                       key={key}
                       style={[
@@ -128,54 +176,7 @@ export default function TableView() {
                         colIdx === visibleColumns.length - 1 &&
                           styles.rightmostCell,
                       ]}>
-                      {/* 純資産(月初) = 資産(月初) - 負債(月初) */}
-                      {(() => {
-                        const assets = Number((item as Row).openingAssets ?? 0);
-                        const liabilities = Number(
-                          (item as Row).openingLiabilities ?? 0,
-                        );
-                        return assets - liabilities;
-                      })()}
-                    </Text>
-                  ) : key === 'closingAssets' ? (
-                    // 資産(月末)の列
-                    <Text
-                      key={key}
-                      style={[
-                        styles.cell,
-                        styles.labelCell,
-                        colIdx === visibleColumns.length - 1 &&
-                          styles.rightmostCell,
-                      ]}>
-                      {/* 資産(月末) = 資産(月初) + ( 収益 - 費用 ) + 借入 */}
-                      {(() => {
-                        const assets = Number((item as Row).openingAssets ?? 0);
-                        const income = Number((item as Row).income ?? 0);
-                        const expense = Number((item as Row).expense ?? 0);
-                        const borrowedAmount = Number(
-                          (item as Row).borrowedAmount ?? 0,
-                        );
-                        return assets + (income - expense) + borrowedAmount;
-                      })()}
-                    </Text>
-                  ) : key === 'closingNetAssets' ? (
-                    // 純資産(月末)の列
-                    <Text
-                      key={key}
-                      style={[
-                        styles.cell,
-                        styles.labelCell,
-                        colIdx === visibleColumns.length - 1 &&
-                          styles.rightmostCell,
-                      ]}>
-                      {/* 純資産(月末) = 資産(月末) - 負債(月末) */}
-                      {(() => {
-                        const assets = Number((item as Row).closingAssets ?? 0);
-                        const liabilities = Number(
-                          (item as Row).closingLiabilities ?? 0,
-                        );
-                        return assets - liabilities;
-                      })()}
+                      {String((item as Row)[key] ?? '')}
                     </Text>
                   ) : (
                     // その他の列（数値入力）
@@ -194,8 +195,8 @@ export default function TableView() {
                   ),
                 )}
               </View>
-            )
-          }
+            );
+          }}
           initialNumToRender={20}
           maxToRenderPerBatch={20}
           windowSize={21}
