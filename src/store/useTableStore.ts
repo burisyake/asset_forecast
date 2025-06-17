@@ -6,8 +6,8 @@ export type Row = {
   openingNetAssets: number; // 純資産(月初)
   openingAssets: number; // 資産(月初)
   openingLiabilities: number; // 負債(月初)
+  income: number; // 収益
   expense: number; // 費用
-  income: number; // 利益
   investment: number; // 投資
   disposal: number; // 売却
   borrowedAmount: number; // 借入
@@ -18,9 +18,9 @@ export type Row = {
 };
 type ColumnKey = keyof Row;
 
-// 2023年1月〜2034年12月のyearMonth配列を生成
+// 1950年1月〜2150年12月のyearMonth配列を生成
 const rows: Row[] = [];
-for (let year = 2020; year <= 2034; year++) {
+for (let year = 1950; year <= 2150; year++) {
   for (let month = 1; month <= 12; month++) {
     const ym = `${year}${month.toString().padStart(2, '0')}`;
     rows.push({
@@ -29,8 +29,8 @@ for (let year = 2020; year <= 2034; year++) {
       openingNetAssets: 0,
       openingAssets: 0,
       openingLiabilities: 0,
-      expense: 0,
       income: 0,
+      expense: 0,
       investment: 0,
       disposal: 0,
       borrowedAmount: 0,
@@ -52,12 +52,12 @@ type TableStore = {
   updateCell: (id: string, key: ColumnKey, value: string | number) => void;
 };
 
-// 初期表示は2025年1月〜2034年12月（11年分=132ヶ月）だけ
+// 初期表示は2025年1月〜2055年12月（30年分=361ヶ月）だけ
 const startYearMonth = '202501';
 const startYearMonthIndex = rows.findIndex(
   row => row.yearMonth === startYearMonth,
 );
-const INITIAL_VISIBLE_COUNT = 132;
+const INITIAL_VISIBLE_COUNT = 360;
 const INITIAL_VISIBLE_START_INDEX = startYearMonthIndex;
 
 export const useTableStore = create<TableStore>(set => ({
@@ -67,8 +67,8 @@ export const useTableStore = create<TableStore>(set => ({
     'openingNetAssets',
     'openingAssets',
     'openingLiabilities',
-    'expense',
     'income',
+    'expense',
     'investment',
     'disposal',
     'borrowedAmount',
