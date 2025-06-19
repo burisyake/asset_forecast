@@ -48,8 +48,10 @@ type TableStore = {
   visibleCount: number;
   visibleStartIndex: number;
   startYearMonth: string;
+  columnOrder: ColumnKey[];
   setStartYearMonth: (ym: string) => void;
   updateCell: (id: string, key: ColumnKey, value: string | number) => void;
+  setColumnOrder: (order: ColumnKey[]) => void;
 };
 
 // 初期表示は2025年1月〜2055年12月（30年分=361ヶ月）だけ
@@ -63,6 +65,21 @@ const INITIAL_VISIBLE_START_INDEX = startYearMonthIndex;
 export const useTableStore = create<TableStore>(set => ({
   data: rows,
   visibleColumns: [
+    'yearMonth',
+    'openingNetAssets',
+    'openingAssets',
+    'openingLiabilities',
+    'income',
+    'expense',
+    'investment',
+    'disposal',
+    'borrowedAmount',
+    'repayment',
+    'closingNetAssets',
+    'closingAssets',
+    'closingLiabilities',
+  ],
+  columnOrder: [
     'yearMonth',
     'openingNetAssets',
     'openingAssets',
@@ -131,4 +148,5 @@ export const useTableStore = create<TableStore>(set => ({
       }
       return {data: newData};
     }),
+  setColumnOrder: order => set({columnOrder: order}),
 }));

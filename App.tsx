@@ -8,6 +8,7 @@ import SettingsScreen from './src/screens/SettingsScreen';
 import ActualsScreen from './src/screens/ActualsScreen';
 import InitialRowSection from './src/components/InitialRowSection';
 import FieldCustomizeSection from './src/components/FieldCustomizeSection';
+import FieldSortSection from './src/components/FieldSortSection';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -22,7 +23,7 @@ function SettingsStack() {
         name="入力項目の追加削除"
         component={FieldCustomizeSection}
       />
-      <Stack.Screen name="入力項目の並び替え" component={InitialRowSection} />
+      <Stack.Screen name="入力項目の並び替え" component={FieldSortSection} />
       <Stack.Screen name="入力データのクリア" component={InitialRowSection} />
       <Stack.Screen name="テーマカラーの変更" component={InitialRowSection} />
       <Stack.Screen name="通貨" component={InitialRowSection} />

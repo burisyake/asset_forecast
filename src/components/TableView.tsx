@@ -52,6 +52,7 @@ export default function TableView() {
     visibleCount,
     visibleStartIndex,
     startYearMonth,
+    columnOrder,
   } = useTableStore();
   const {amountFormat, headerToggles} = useSettingsStore();
   const [editingCell, setEditingCell] = useState<{
@@ -61,8 +62,8 @@ export default function TableView() {
 
   const visibleColumns =
     headerToggles && headerToggles.length === allColumns.length
-      ? allColumns.filter((_, idx) => headerToggles[idx])
-      : allColumns;
+      ? columnOrder.filter(key => headerToggles[allColumns.indexOf(key)])
+      : columnOrder;
   const flatListData = data.slice(
     visibleStartIndex,
     visibleStartIndex + visibleCount,
