@@ -22,6 +22,14 @@ function SettingsStack() {
         name="入力項目の追加削除"
         component={FieldCustomizeSection}
       />
+      <Stack.Screen name="入力項目の並び替え" component={InitialRowSection} />
+      <Stack.Screen name="入力データのクリア" component={InitialRowSection} />
+      <Stack.Screen name="テーマカラーの変更" component={InitialRowSection} />
+      <Stack.Screen name="通貨" component={InitialRowSection} />
+      <Stack.Screen name="言語" component={InitialRowSection} />
+      <Stack.Screen name="サブスクリプション" component={InitialRowSection} />
+      <Stack.Screen name="バッジ" component={InitialRowSection} />
+      <Stack.Screen name="プライバシーポリシー" component={InitialRowSection} />
     </Stack.Navigator>
   );
 }

@@ -6,9 +6,16 @@ import {useSettingsStore} from '../store/useSettingsStore';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 type RootStackParamList = {
-  設定: undefined;
   入力開始年月: undefined;
   入力項目の追加削除: undefined;
+  入力項目の並び替え: undefined;
+  入力データのクリア: undefined;
+  テーマカラーの変更: undefined;
+  通貨: undefined;
+  言語: undefined;
+  サブスクリプション: undefined;
+  バッジ: undefined;
+  プライバシーポリシー: undefined;
 };
 
 export default function SettingsScreen() {
@@ -58,7 +65,7 @@ export default function SettingsScreen() {
           style={styles.menuItem}
           onPress={() => navigation.navigate('入力項目の追加削除')}>
           <MaterialCommunityIcons
-            name="border-color"
+            name="sitemap"
             size={22}
             color="#444"
             style={styles.menuIcon}
@@ -71,9 +78,43 @@ export default function SettingsScreen() {
             style={styles.menuRightIcon}
           />
         </Pressable>
-        <View style={styles.amountRow}>
+        <Pressable
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('入力項目の並び替え')}>
+          <MaterialCommunityIcons
+            name="compare-horizontal"
+            size={22}
+            color="#444"
+            style={styles.menuIcon}
+          />
+          <Text style={styles.menuLabel}>入力項目の並び替え</Text>
+          <MaterialCommunityIcons
+            name="chevron-right"
+            size={22}
+            color="#888"
+            style={styles.menuRightIcon}
+          />
+        </Pressable>
+        <Pressable
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('通貨')}>
           <MaterialCommunityIcons
             name="currency-cny"
+            size={22}
+            color="#444"
+            style={styles.menuIcon}
+          />
+          <Text style={styles.menuLabel}>通貨</Text>
+          <MaterialCommunityIcons
+            name="chevron-right"
+            size={22}
+            color="#888"
+            style={styles.menuRightIcon}
+          />
+        </Pressable>
+        <View style={styles.amountRow}>
+          <MaterialCommunityIcons
+            name="page-next"
             size={22}
             color="#444"
             style={styles.menuIcon}
@@ -110,6 +151,125 @@ export default function SettingsScreen() {
             </Pressable>
           </View>
         </View>
+        <Pressable
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('言語')}>
+          <MaterialCommunityIcons
+            name="alphabet-latin"
+            size={22}
+            color="#444"
+            style={styles.menuIcon}
+          />
+          <Text style={styles.menuLabel}>言語</Text>
+          <MaterialCommunityIcons
+            name="chevron-right"
+            size={22}
+            color="#888"
+            style={styles.menuRightIcon}
+          />
+        </Pressable>
+        <Pressable
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('サブスクリプション')}>
+          <MaterialCommunityIcons
+            name="crown-circle"
+            size={22}
+            color="#444"
+            style={styles.menuIcon}
+          />
+          <Text style={styles.menuLabel}>サブスクリプション</Text>
+          <MaterialCommunityIcons
+            name="chevron-right"
+            size={22}
+            color="#888"
+            style={styles.menuRightIcon}
+          />
+        </Pressable>
+        <Pressable
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('バッジ')}>
+          <MaterialCommunityIcons
+            name="check-decagram"
+            size={22}
+            color="#444"
+            style={styles.menuIcon}
+          />
+          <Text style={styles.menuLabel}>バッジ</Text>
+          <MaterialCommunityIcons
+            name="chevron-right"
+            size={22}
+            color="#888"
+            style={styles.menuRightIcon}
+          />
+        </Pressable>
+        <Pressable
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('テーマカラーの変更')}>
+          <MaterialCommunityIcons
+            name="invert-colors"
+            size={22}
+            color="#444"
+            style={styles.menuIcon}
+          />
+          <Text style={styles.menuLabel}>テーマカラーの変更</Text>
+          <MaterialCommunityIcons
+            name="chevron-right"
+            size={22}
+            color="#888"
+            style={styles.menuRightIcon}
+          />
+        </Pressable>
+        <Pressable
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('入力データのクリア')}>
+          <MaterialCommunityIcons
+            name="database-refresh"
+            size={22}
+            color="#444"
+            style={styles.menuIcon}
+          />
+          <Text style={styles.menuLabel}>入力データのクリア</Text>
+          <MaterialCommunityIcons
+            name="chevron-right"
+            size={22}
+            color="#888"
+            style={styles.menuRightIcon}
+          />
+        </Pressable>
+        <Pressable
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('プライバシーポリシー')}>
+          <MaterialCommunityIcons
+            name="shield-star-outline"
+            size={22}
+            color="#444"
+            style={styles.menuIcon}
+          />
+          <Text style={styles.menuLabel}>プライバシーポリシー</Text>
+          <MaterialCommunityIcons
+            name="chevron-right"
+            size={22}
+            color="#888"
+            style={styles.menuRightIcon}
+          />
+        </Pressable>
+        <Pressable
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('入力データのクリア')}>
+          <MaterialCommunityIcons
+            name="help-circle-outline"
+            size={22}
+            color="#444"
+            style={styles.menuIcon}
+          />
+          <Text style={styles.menuLabel}>ヘルプ</Text>
+          <MaterialCommunityIcons
+            name="chevron-right"
+            size={22}
+            color="#888"
+            style={styles.menuRightIcon}
+          />
+        </Pressable>
       </View>
     </ScrollView>
   );

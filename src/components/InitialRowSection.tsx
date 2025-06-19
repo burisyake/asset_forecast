@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   labelContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#BCBABE',
     width: 100,
   },
   labelContainerH30: {
@@ -188,13 +188,13 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 110,
     borderWidth: 1,
-    borderColor: '#fff',
-    borderRadius: 0,
+    borderColor: '#BCBABE',
+    borderRadius: 2,
   },
   pickerItem: {height: 110, fontSize: 16},
   paddingTop24: {paddingTop: 24},
   toggleTitleRow: {
-    backgroundColor: '#fff',
+    backgroundColor: '#BCBABE',
   },
   toggleTitleItem: {
     padding: 8,
