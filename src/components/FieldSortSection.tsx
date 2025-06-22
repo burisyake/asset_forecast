@@ -3,22 +3,22 @@ import {Text, StyleSheet, Pressable} from 'react-native';
 import DraggableFlatList, {
   RenderItemParams,
 } from 'react-native-draggable-flatlist';
-import {Row, useTableStore} from '../store/useTableStore';
-import {COLUMN_LABELS} from '../components/TableView';
+import {useTableStore} from '../store/useTableStore';
+import {useSettingsStore} from '../store/useSettingsStore';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 type Item = {
-  key: keyof Row;
+  key: string;
   label: string;
 };
 
 export default function FieldSortSection() {
-  const columnOrder = useTableStore(state => state.columnOrder);
-  const setColumnOrder = useTableStore(state => state.setColumnOrder);
+  const {columnOrder, setColumnOrder} = useTableStore();
+  const {columnLabels} = useSettingsStore();
 
   const data = useMemo<Item[]>(
-    () => columnOrder.map(key => ({key, label: COLUMN_LABELS[key]})),
-    [columnOrder],
+    () => columnOrder.map(key => ({key, label: columnLabels[key]})),
+    [columnOrder, columnLabels],
   );
 
   const handleDragEnd = useCallback(

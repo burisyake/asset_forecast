@@ -3,6 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
+  Switch,
   ScrollView,
   TextInput,
   Pressable,
@@ -10,8 +11,9 @@ import {
 import {Picker} from '@react-native-picker/picker';
 import {Row, useTableStore} from '../store/useTableStore';
 import {useSettingsStore} from '../store/useSettingsStore';
+import {COLUMN_LABELS} from '../components/TableView';
 
-export default function InitialRowSection() {
+export default function CurrencySection() {
   // 2020年1月〜2034年12月の年月リストを生成
   const yearMonthList = [];
   for (let year = 1950; year <= 2150; year++) {
@@ -34,11 +36,11 @@ export default function InitialRowSection() {
   const [selectedYm, setSelectedYm] = useState(startYearMonth);
   const startRow = data.find(row => row.yearMonth === startYearMonth);
 
-  const {columnLabels, amountFormat} = useSettingsStore();
   const columnKeys = useMemo(
-    () => Object.keys(columnLabels) as (keyof Row)[],
-    [columnLabels],
+    () => Object.keys(COLUMN_LABELS) as (keyof Row)[],
+    [],
   );
+  const {amountFormat, headerToggles, setHeaderToggles} = useSettingsStore();
 
   const [inputValues, setInputValues] = useState<{[key in keyof Row]?: string}>(
     {},
@@ -83,13 +85,18 @@ export default function InitialRowSection() {
   }, [startRow, columnKeys]);
 
   // 入力変更ハンドラ
-  const handleInputChange = (key: string, text: string) => {
+  const handleInputChange = (key: keyof Row, text: string) => {
     setInputValues(prev => ({...prev, [key]: text}));
     // 入力開始年月の行の該当セルをstoreに反映
     const targetRow = data.find(row => row.yearMonth === startYearMonth);
     if (targetRow) {
       updateCell(targetRow.id, key, text);
     }
+  };
+
+  const handleToggle = (idx: number) => {
+    const newToggles = headerToggles.map((v, i) => (i === idx ? !v : v));
+    setHeaderToggles(newToggles);
   };
 
   return (
@@ -112,11 +119,18 @@ export default function InitialRowSection() {
         </Picker>
       </View>
       <View style={[styles.paddingTop24]}>
-        {columnKeys.map(key => {
+        <View style={[styles.row, styles.toggleTitleRow]}>
+          <Text style={[styles.toggleTitleItem, styles.toggleLabel]}>項目</Text>
+          <Text style={[styles.toggleTitleItem]}>初期設定値</Text>
+          <Text style={[styles.toggleTitleItem, styles.toggleTitletoggle]}>
+            表示/非表示
+          </Text>
+        </View>
+        {columnKeys.map((key, idx) => {
           const isLabel = disabledKeys.includes(key);
           return (
             <View key={key} style={[styles.row, styles.toggleRow]}>
-              <Text style={styles.toggleLabel}>{columnLabels[key]}</Text>
+              <Text style={styles.toggleLabel}>{COLUMN_LABELS[key]}</Text>
               {key === 'yearMonth' ? (
                 // 年月列はラベル表示
                 <Text style={[styles.toggleInput, styles.toggleInputLabel]}>
@@ -137,7 +151,7 @@ export default function InitialRowSection() {
                 <TextInput
                   style={styles.toggleInput}
                   value={inputValues[key] ?? ''}
-                  onChangeText={text => handleInputChange(String(key), text)}
+                  onChangeText={text => handleInputChange(key, text)}
                   onBlur={() => setEditingKey(null)}
                   autoFocus
                   keyboardType="numeric"
@@ -152,6 +166,18 @@ export default function InitialRowSection() {
                   </Text>
                 </Pressable>
               )}
+              {key === 'yearMonth' ? (
+                <Switch
+                  value={headerToggles[idx]}
+                  onValueChange={() => handleToggle(idx)}
+                  disabled
+                />
+              ) : (
+                <Switch
+                  value={headerToggles[idx]}
+                  onValueChange={() => handleToggle(idx)}
+                />
+              )}
             </View>
           );
         })}
@@ -161,12 +187,12 @@ export default function InitialRowSection() {
 }
 
 const styles = StyleSheet.create({
-  container: {padding: 16, backgroundColor: '#fff'},
+  container: {padding: 16},
   row: {flexDirection: 'row', alignItems: 'center'},
   labelContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#BCBABE',
+    backgroundColor: '#b0c4de',
     width: 100,
   },
   labelContainerH30: {
@@ -187,13 +213,13 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 110,
     borderWidth: 1,
-    borderColor: '#BCBABE',
-    borderRadius: 2,
+    borderColor: '#b0c4de',
+    borderRadius: 0,
   },
   pickerItem: {height: 110, fontSize: 16},
   paddingTop24: {paddingTop: 24},
   toggleTitleRow: {
-    backgroundColor: '#BCBABE',
+    backgroundColor: '#b0c4de',
   },
   toggleTitleItem: {
     padding: 8,

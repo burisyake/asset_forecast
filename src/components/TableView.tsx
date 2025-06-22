@@ -11,23 +11,6 @@ import {
 import {useTableStore, Row} from '../store/useTableStore';
 import {useSettingsStore} from '../store/useSettingsStore';
 
-// テーブルヘッダー行ラベル
-export const COLUMN_LABELS: Record<string, string> = {
-  yearMonth: '年月',
-  openingNetAssets: '純資産(月初)',
-  openingAssets: '資産(月初)',
-  openingLiabilities: '負債(月初)',
-  income: '収入',
-  expense: '支出',
-  investment: '投資',
-  disposal: '売却',
-  borrowedAmount: '借入',
-  repayment: '返済',
-  closingNetAssets: '純資産(月末)',
-  closingAssets: '資産(月末)',
-  closingLiabilities: '負債(月末)',
-};
-
 const HEADER_COLORS: Record<string, string> = {
   yearMonth: '#bbe2f1',
   openingNetAssets: '#b6e2b6',
@@ -47,23 +30,20 @@ const HEADER_COLORS: Record<string, string> = {
 export default function TableView() {
   const {
     data,
-    visibleColumns: allColumns,
     updateCell,
     visibleCount,
     visibleStartIndex,
     startYearMonth,
+    visibleColumns,
     columnOrder,
   } = useTableStore();
-  const {amountFormat, headerToggles} = useSettingsStore();
+  const {columnLabels, amountFormat} = useSettingsStore();
   const [editingCell, setEditingCell] = useState<{
     id: string;
     key: string;
   } | null>(null);
 
-  const visibleColumns =
-    headerToggles && headerToggles.length === allColumns.length
-      ? columnOrder.filter(key => headerToggles[allColumns.indexOf(key)])
-      : columnOrder;
+  const columns = columnOrder.filter(key => visibleColumns.includes(key));
   const flatListData = data.slice(
     visibleStartIndex,
     visibleStartIndex + visibleCount,
@@ -103,15 +83,15 @@ export default function TableView() {
       <View>
         {/* ヘッダー */}
         <View style={styles.row}>
-          {visibleColumns.map((key, colIdx) => (
+          {columns.map((key, colIdx) => (
             <Text
               key={key}
               style={[
                 styles.header,
-                colIdx === visibleColumns.length - 1 && styles.rightmostCell,
+                colIdx === columns.length - 1 && styles.rightmostCell,
                 HEADER_COLORS[key] && {backgroundColor: HEADER_COLORS[key]},
               ]}>
-              {COLUMN_LABELS[key] ?? key}
+              {columnLabels[key] ?? key}
             </Text>
           ))}
         </View>
@@ -124,7 +104,7 @@ export default function TableView() {
             return (
               // データ行
               <View key={item.id} style={styles.row}>
-                {visibleColumns.map((key, colIdx) => {
+                {columns.map((key, colIdx) => {
                   const isEditing =
                     editingCell?.id === item.id && editingCell?.key === key;
                   if (key === 'yearMonth') {
@@ -135,8 +115,7 @@ export default function TableView() {
                         style={[
                           styles.cell,
                           styles.yearMonthCell,
-                          colIdx === visibleColumns.length - 1 &&
-                            styles.rightmostCell,
+                          colIdx === columns.length - 1 && styles.rightmostCell,
                         ]}>
                         {(() => {
                           const ym = String((item as Row)[key]);
@@ -162,7 +141,7 @@ export default function TableView() {
                             autoFocus
                             style={[
                               styles.cell,
-                              colIdx === visibleColumns.length - 1 &&
+                              colIdx === columns.length - 1 &&
                                 styles.rightmostCell,
                             ]}
                             keyboardType="numeric"
@@ -172,7 +151,7 @@ export default function TableView() {
                             key={key}
                             style={[
                               styles.cell,
-                              colIdx === visibleColumns.length - 1 &&
+                              colIdx === columns.length - 1 &&
                                 styles.rightmostCell,
                             ]}
                             onPress={() => setEditingCell({id: item.id, key})}>
@@ -186,7 +165,7 @@ export default function TableView() {
                           style={[
                             styles.cell,
                             styles.labelCell,
-                            colIdx === visibleColumns.length - 1 &&
+                            colIdx === columns.length - 1 &&
                               styles.rightmostCell,
                           ]}>
                           {prevItem
@@ -213,7 +192,7 @@ export default function TableView() {
                             autoFocus
                             style={[
                               styles.cell,
-                              colIdx === visibleColumns.length - 1 &&
+                              colIdx === columns.length - 1 &&
                                 styles.rightmostCell,
                             ]}
                             keyboardType="numeric"
@@ -223,7 +202,7 @@ export default function TableView() {
                             key={key}
                             style={[
                               styles.cell,
-                              colIdx === visibleColumns.length - 1 &&
+                              colIdx === columns.length - 1 &&
                                 styles.rightmostCell,
                             ]}
                             onPress={() => setEditingCell({id: item.id, key})}>
@@ -237,7 +216,7 @@ export default function TableView() {
                           style={[
                             styles.cell,
                             styles.labelCell,
-                            colIdx === visibleColumns.length - 1 &&
+                            colIdx === columns.length - 1 &&
                               styles.rightmostCell,
                           ]}>
                           {prevItem
@@ -263,8 +242,7 @@ export default function TableView() {
                         style={[
                           styles.cell,
                           styles.labelCell,
-                          colIdx === visibleColumns.length - 1 &&
-                            styles.rightmostCell,
+                          colIdx === columns.length - 1 && styles.rightmostCell,
                         ]}>
                         {formatValue(String((item as Row)[key]) ?? '')}
                       </Text>
@@ -273,7 +251,7 @@ export default function TableView() {
                     return (
                       <TextInput
                         key={key}
-                        value={String((item as Row)[key] ?? '')}
+                        value={String(item[key] ?? '')}
                         onChangeText={text =>
                           updateCell(item.id, key, Number(text))
                         }
@@ -281,8 +259,7 @@ export default function TableView() {
                         autoFocus
                         style={[
                           styles.cell,
-                          colIdx === visibleColumns.length - 1 &&
-                            styles.rightmostCell,
+                          colIdx === columns.length - 1 && styles.rightmostCell,
                         ]}
                         keyboardType="numeric"
                       />
@@ -293,8 +270,7 @@ export default function TableView() {
                         key={key}
                         style={[
                           styles.cell,
-                          colIdx === visibleColumns.length - 1 &&
-                            styles.rightmostCell,
+                          colIdx === columns.length - 1 && styles.rightmostCell,
                         ]}
                         onLongPress={() =>
                           Alert.alert(
@@ -319,7 +295,7 @@ export default function TableView() {
                                     updateCell(
                                       flatListData[i].id,
                                       key,
-                                      currentValue,
+                                      Number(currentValue),
                                     );
                                   }
                                 },

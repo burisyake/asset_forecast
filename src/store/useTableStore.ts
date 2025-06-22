@@ -15,8 +15,8 @@ export type Row = {
   closingNetAssets: number; // 純資産(月末)
   closingAssets: number; // 純資産(月末)
   closingLiabilities: number; // 負債(月末)
+  [key: string]: string | number | undefined;
 };
-type ColumnKey = keyof Row;
 
 // 1950年1月〜2150年12月のyearMonth配列を生成
 const rows: Row[] = [];
@@ -44,14 +44,15 @@ for (let year = 1950; year <= 2150; year++) {
 
 type TableStore = {
   data: Row[];
-  visibleColumns: ColumnKey[];
+  visibleColumns: string[];
   visibleCount: number;
   visibleStartIndex: number;
   startYearMonth: string;
-  columnOrder: ColumnKey[];
+  columnOrder: string[];
   setStartYearMonth: (ym: string) => void;
-  updateCell: (id: string, key: ColumnKey, value: string | number) => void;
-  setColumnOrder: (order: ColumnKey[]) => void;
+  updateCell: (id: string, key: string, value: string | number) => void;
+  setVisibleColumns: (columns: string[]) => void;
+  setColumnOrder: (order: string[]) => void;
 };
 
 // 初期表示は2025年1月〜2055年12月（30年分=361ヶ月）だけ
@@ -148,5 +149,6 @@ export const useTableStore = create<TableStore>(set => ({
       }
       return {data: newData};
     }),
+  setVisibleColumns: columns => set({visibleColumns: columns}),
   setColumnOrder: order => set({columnOrder: order}),
 }));

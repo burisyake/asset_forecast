@@ -7,8 +7,8 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 type RootStackParamList = {
   入力開始年月: undefined;
-  入力項目の追加削除: undefined;
-  入力項目の並び替え: undefined;
+  項目の追加削除: undefined;
+  項目の並び替え: undefined;
   入力データのクリア: undefined;
   テーマカラーの変更: undefined;
   通貨: undefined;
@@ -63,14 +63,14 @@ export default function SettingsScreen() {
         </Pressable>
         <Pressable
           style={styles.menuItem}
-          onPress={() => navigation.navigate('入力項目の追加削除')}>
+          onPress={() => navigation.navigate('項目の追加削除')}>
           <MaterialCommunityIcons
             name="sitemap"
             size={22}
             color="#444"
             style={styles.menuIcon}
           />
-          <Text style={styles.menuLabel}>入力項目の追加・削除</Text>
+          <Text style={styles.menuLabel}>項目の追加・削除</Text>
           <MaterialCommunityIcons
             name="chevron-right"
             size={22}
@@ -80,14 +80,14 @@ export default function SettingsScreen() {
         </Pressable>
         <Pressable
           style={styles.menuItem}
-          onPress={() => navigation.navigate('入力項目の並び替え')}>
+          onPress={() => navigation.navigate('項目の並び替え')}>
           <MaterialCommunityIcons
             name="compare-horizontal"
             size={22}
             color="#444"
             style={styles.menuIcon}
           />
-          <Text style={styles.menuLabel}>入力項目の並び替え</Text>
+          <Text style={styles.menuLabel}>項目の並び替え</Text>
           <MaterialCommunityIcons
             name="chevron-right"
             size={22}

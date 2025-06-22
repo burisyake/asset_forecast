@@ -1,19 +1,34 @@
 import {create} from 'zustand';
-import {Row} from '../store/useTableStore';
-import {COLUMN_LABELS} from '../components/TableView';
+
+const initialLabels = {
+  yearMonth: '年月',
+  openingNetAssets: '純資産(月初)',
+  openingAssets: '資産(月初)',
+  openingLiabilities: '負債(月初)',
+  income: '収入',
+  expense: '支出',
+  investment: '投資',
+  disposal: '売却',
+  borrowedAmount: '借入',
+  repayment: '返済',
+  closingNetAssets: '純資産(月末)',
+  closingAssets: '資産(月末)',
+  closingLiabilities: '負債(月末)',
+};
 
 type SettingsStore = {
   amountFormat: string;
-  headerToggles: boolean[];
+  columnLabels: Record<string, string>;
   setAmountFormat: (amountFormat: string) => void;
-  setHeaderToggles: (toggles: boolean[]) => void;
+  addColumnLabel: (key: string, label: string) => void;
 };
-
-const columnKeys = Object.keys(COLUMN_LABELS) as (keyof Row)[];
 
 export const useSettingsStore = create<SettingsStore>(set => ({
   amountFormat: 'comma',
-  headerToggles: Array(columnKeys.length).fill(true),
+  columnLabels: initialLabels,
   setAmountFormat: amountFormat => set({amountFormat}),
-  setHeaderToggles: toggles => set({headerToggles: toggles}),
+  addColumnLabel: (key, label) =>
+    set(state => ({
+      columnLabels: {...state.columnLabels, [key]: label},
+    })),
 }));
