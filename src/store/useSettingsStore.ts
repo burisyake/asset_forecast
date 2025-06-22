@@ -1,6 +1,6 @@
 import {create} from 'zustand';
 
-const initialLabels = {
+export const initialLabels: {[key: string]: string} = {
   yearMonth: '年月',
   openingNetAssets: '純資産(月初)',
   openingAssets: '資産(月初)',
@@ -21,6 +21,7 @@ type SettingsStore = {
   columnLabels: Record<string, string>;
   setAmountFormat: (amountFormat: string) => void;
   addColumnLabel: (key: string, label: string) => void;
+  setColumnLabels: (labels: Record<string, string>) => void;
 };
 
 export const useSettingsStore = create<SettingsStore>(set => ({
@@ -31,4 +32,5 @@ export const useSettingsStore = create<SettingsStore>(set => ({
     set(state => ({
       columnLabels: {...state.columnLabels, [key]: label},
     })),
+  setColumnLabels: labels => set({columnLabels: labels}),
 }));

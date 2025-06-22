@@ -11,14 +11,17 @@ import {
   Pressable,
 } from 'react-native';
 import {Row, useTableStore} from '../store/useTableStore';
-import {useSettingsStore} from '../store/useSettingsStore';
+import {useSettingsStore, initialLabels} from '../store/useSettingsStore';
 
 export default function FieldCustomizeSection() {
   const {visibleColumns, columnOrder, setVisibleColumns, setColumnOrder} =
     useTableStore();
-  const {columnLabels, addColumnLabel} = useSettingsStore();
+  const {columnLabels, addColumnLabel, setColumnLabels} = useSettingsStore();
   const [modalVisible, setModalVisible] = useState(false);
   const [newFieldName, setNewFieldName] = useState('');
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editKey, setEditKey] = useState<string | null>(null);
+  const [editFieldName, setEditFieldName] = useState('');
 
   const columnKeys = useMemo(
     () => Object.keys(columnLabels) as (keyof Row)[],
@@ -37,6 +40,18 @@ export default function FieldCustomizeSection() {
       setVisibleColumns(newVisible);
     }
   };
+
+  // 項目名編集の保存
+  const handleEditSave = () => {
+    if (editKey && editFieldName.trim()) {
+      setColumnLabels({
+        ...columnLabels,
+        [editKey]: editFieldName.trim(),
+      });
+      setEditModalVisible(false);
+    }
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View style={[styles.row, styles.toggleTitleRow]}>
@@ -55,27 +70,38 @@ export default function FieldCustomizeSection() {
       <View>
         {columnKeys.map(key => {
           return (
-            <View key={key} style={[styles.row, styles.toggleRow]}>
-              <Text style={styles.toggleLabel}>{columnLabels[key]}</Text>
-              {key === 'yearMonth' ? (
-                <Switch
-                  value={visibleColumns.includes(key)}
-                  onValueChange={() => handleToggle(key)}
-                  disabled
-                  trackColor={{false: '#ccc', true: '#5C821A'}}
-                  thumbColor={visibleColumns.includes(key) ? '#fff' : '#f4f3f4'}
-                />
-              ) : (
-                <Switch
-                  value={visibleColumns.includes(String(key))}
-                  onValueChange={() => handleToggle(String(key))}
-                  trackColor={{false: '#ccc', true: '#5C821A'}}
-                  thumbColor={
-                    visibleColumns.includes(String(key)) ? '#fff' : '#f4f3f4'
-                  }
-                />
-              )}
-            </View>
+            <TouchableOpacity
+              key={key}
+              onPress={() => {
+                setEditKey(String(key));
+                setEditFieldName(columnLabels[key]);
+                setEditModalVisible(true);
+              }}
+              activeOpacity={0.7}>
+              <View key={key} style={[styles.row, styles.toggleRow]}>
+                <Text style={styles.toggleLabel}>{columnLabels[key]}</Text>
+                {key === 'yearMonth' ? (
+                  <Switch
+                    value={visibleColumns.includes(key)}
+                    onValueChange={() => handleToggle(key)}
+                    disabled
+                    trackColor={{false: '#ccc', true: '#5C821A'}}
+                    thumbColor={
+                      visibleColumns.includes(key) ? '#fff' : '#f4f3f4'
+                    }
+                  />
+                ) : (
+                  <Switch
+                    value={visibleColumns.includes(String(key))}
+                    onValueChange={() => handleToggle(String(key))}
+                    trackColor={{false: '#ccc', true: '#5C821A'}}
+                    thumbColor={
+                      visibleColumns.includes(String(key)) ? '#fff' : '#f4f3f4'
+                    }
+                  />
+                )}
+              </View>
+            </TouchableOpacity>
           );
         })}
       </View>
@@ -87,21 +113,17 @@ export default function FieldCustomizeSection() {
         onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={{fontSize: 16, marginBottom: 12}}>
-              新しい項目名を入力
-            </Text>
+            <Text style={{fontSize: 16, marginBottom: 12}}>項目を追加</Text>
+            <View style={{marginBottom: 4}}>
+              <Text style={styles.fieldLabel}>項目名</Text>
+            </View>
             <TextInput
               style={styles.input}
               placeholder="項目名"
               value={newFieldName}
               onChangeText={setNewFieldName}
             />
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'flex-end',
-                marginTop: 16,
-              }}>
+            <View style={styles.modalButtonRow}>
               <Pressable
                 style={[styles.modalButton, {backgroundColor: '#ccc'}]}
                 onPress={() => {
@@ -124,6 +146,65 @@ export default function FieldCustomizeSection() {
                   setNewFieldName('');
                 }}>
                 <Text style={{color: '#fff'}}>追加</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      {/* 編集用モーダル */}
+      <Modal
+        visible={editModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setEditModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.editModalHeader}>
+              <Text style={{fontSize: 16, flex: 1}}>編集</Text>
+              <Pressable
+                style={[
+                  styles.deleteButton,
+                  editKey && initialLabels[editKey]
+                    ? styles.deleteButtonDisabled
+                    : styles.deleteButtonActive,
+                ]}
+                disabled={!!(editKey && initialLabels[editKey])}
+                onPress={() => {
+                  if (editKey && !initialLabels[editKey]) {
+                    const {[editKey]: _, ...restLabels} = columnLabels;
+                    setColumnLabels(restLabels);
+                    setVisibleColumns(
+                      visibleColumns.filter(k => k !== editKey),
+                    );
+                    setColumnOrder(columnOrder.filter(k => k !== editKey));
+                    setEditModalVisible(false);
+                  }
+                }}>
+                <Text style={{color: '#fff', fontSize: 13}}>削除</Text>
+              </Pressable>
+            </View>
+            <View style={{marginBottom: 4}}>
+              <Text style={styles.fieldLabel}>項目名</Text>
+            </View>
+            <TextInput
+              style={styles.input}
+              value={editFieldName}
+              onChangeText={setEditFieldName}
+              placeholder="項目名"
+            />
+            <View style={styles.modalButtonRow}>
+              <Pressable
+                style={[styles.modalButton, {backgroundColor: '#ccc'}]}
+                onPress={() => setEditModalVisible(false)}>
+                <Text>キャンセル</Text>
+              </Pressable>
+              <Pressable
+                style={[
+                  styles.modalButton,
+                  {backgroundColor: '#1995AD', marginLeft: 8},
+                ]}
+                onPress={handleEditSave}>
+                <Text style={{color: '#fff'}}>保存</Text>
               </Pressable>
             </View>
           </View>
@@ -195,5 +276,33 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 8,
     borderRadius: 8,
+  },
+  editModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  deleteButton: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  deleteButtonActive: {
+    backgroundColor: '#ff6666',
+    opacity: 1,
+  },
+  deleteButtonDisabled: {
+    backgroundColor: '#ccc',
+    opacity: 0.5,
+  },
+  fieldLabel: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 2,
+  },
+  modalButtonRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 16,
   },
 });
